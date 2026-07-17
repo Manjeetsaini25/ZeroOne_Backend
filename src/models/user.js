@@ -32,7 +32,11 @@ const userSchema = new Schema({
         default: 'user'
     },
     problemSolved:{
-        type:[string]
+        type:[String]
+    },
+    password:{
+        type:String,
+        required: true
     }
 },{
     timestamps:true

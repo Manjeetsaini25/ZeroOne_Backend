@@ -2,6 +2,7 @@ const express = require('express')
 const app = express();
 require('dotenv').config();
 const main =  require('./config/db')
+const redisClient = require('./config/redis');
 const cookieParser =  require('cookie-parser');
 
 
@@ -10,18 +11,22 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-main()
-.then(async ()=>{
-    app.listen(process.env.PORT, ()=>{
-        console.log("Server listening at port number: "+ process.env.PORT);
-    })
-})
-.catch(err=> console.log("Error Occurred: "+err));
+const InitalizeConnection = async ()=>{
+    try{
 
-// app.get('/',(req,res)=>{
-//     res.send("hii")
-// })
+        await Promise.all([main(),redisClient.connect()]);
+        console.log("DB Connected");
+        
+        app.listen(process.env.PORT, ()=>{
+            console.log("Server listening at port number: "+ process.env.PORT);
+        })
 
-//  app.listen(process.env.PORT, ()=>{
-//         console.log("Server listening at port number: "+ process.env.PORT);
-//  })
+    }
+    catch(err){
+        console.log("Error: "+err);
+    }
+}
+
+
+InitalizeConnection();
+

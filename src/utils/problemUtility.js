@@ -18,15 +18,13 @@ const submitBatch = async (submissions)=>{
 
 
 const options = {
-  method: 'POST',
-  url: 'https://judge0-ce.p.rapidapi.com/submissions/batch',
+  method: "POST",
+  url: "https://ce.judge0.com/submissions/batch",
   params: {
-    base64_encoded: 'true'
+    base64_encoded: false
   },
   headers: {
-    'x-rapidapi-key': 'ab99c6ec42mshfd636ec7c6687efp1b9043jsna684835b0591',
-    'x-rapidapi-host': 'judge0-ce.p.rapidapi.com',
-    'Content-Type': 'application/json'
+    "Content-Type": "application/json"
   },
   data: {
     submissions
@@ -36,18 +34,62 @@ const options = {
 async function fetchData() {
 	try {
 		const response = await axios.request(options);
+    // console.log(response.data);
+		return response.data;
+	} catch (error) {
+		console.error(error);
+	}
+} 
+
+ return await fetchData();
+}
+
+const waiting = (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+
+const submitToken = async(resultToken)=>{
+
+const options = {
+  method: "GET",
+  url: "https://ce.judge0.com/submissions/batch",
+  params: {
+    tokens: resultToken.join(","),
+    base64_encoded: false,
+    fields: "*"
+  },
+  headers: {
+    "Content-Type": "application/json"
+  }
+};
+
+async function fetchData() {
+	try {
+		const response = await axios.request(options);
+    // console.log(response.data);
 		return response.data;
 	} catch (error) {
 		console.error(error);
 	}
 }
 
- return await fetchData();
+ while(true){
 
+ const result =  await fetchData();
+
+  const IsResultObtained =  result.submissions.every((r)=>r.status_id>2);
+
+  if(IsResultObtained)
+    return result.submissions;
+
+  
+  await waiting(1000);
+}
 }
 
 
-module.exports = {getLanguageById,submitBatch};
+module.exports = {getLanguageById,submitBatch,submitToken};
 
 
 

@@ -1,5 +1,6 @@
 const { getLanguageById, submitBatch, submitToken } = require("../utils/problemUtility");
 const Problem = require("../models/problem");
+const User = require("../models/user");
 
 const createProblem = async (req, res) => {
     try {
@@ -182,4 +183,63 @@ const deleteProblem = async(req,res)=>{
   }
 }
 
-module.exports = {createProblem,updateProblem,deleteProblem};
+const getProblemById = async(req,res)=>{
+
+  const {id} = req.params;
+  try{
+     
+    if(!id)
+      return res.status(400).send("ID is Missing");
+
+    const getProblem = await Problem.findById(id).select('_id title description difficulty tags visibleTestCases startCode referenceSolution ');
+   
+   if(!getProblem)
+    return res.status(404).send("Problem is Missing");
+
+
+   res.status(200).send(getProblem);
+  }
+  catch(err){
+    res.status(500).send("Error: "+err);
+  }
+}
+
+const getAllProblem = async(req,res)=>{
+
+  try{
+     
+    const getProblem = await Problem.find({}).select('_id title difficulty tags');
+
+   if(getProblem.length==0)
+    return res.status(404).send("Problem is Missing");
+
+
+   res.status(200).send(getProblem);
+  }
+  catch(err){
+    res.status(500).send("Error: "+err);
+  }
+}
+
+
+const solvedAllProblembyUser =  async(req,res)=>{
+   
+    try{
+       
+      const userId = req.result._id;
+
+      const user =  await User.findById(userId).populate({
+        path:"problemSolved",
+        select:"_id title difficulty tags"
+      });
+      
+      res.status(200).send(user.problemSolved);
+
+    }
+    catch(err){
+      res.status(500).send("Server Error");
+    }
+}
+
+
+module.exports = {createProblem,updateProblem,deleteProblem,getProblemById,getAllProblem,solvedAllProblembyUser};

@@ -10,7 +10,7 @@ const submitCode = async (req,res)=>{
        const userId = req.result._id;
        const problemId = req.params.id;
 
-       const {code,language} = req.body;
+       let {code,language} = req.body;
 
       if(!userId||!code||!problemId||!language)
         return res.status(400).send("Some field missing");
@@ -18,6 +18,10 @@ const submitCode = async (req,res)=>{
     //    Fetch the problem from database
        const problem =  await Problem.findById(problemId);
     //    testcases(Hidden)
+
+      // cpp error resolved
+      if(language === "cpp") 
+        language = "c++"
 
     //   store submission on db
     const submittedResult = await Submission.create({
@@ -109,7 +113,7 @@ const runCode = async(req,res)=>{
       const userId = req.result._id;
       const problemId = req.params.id;
 
-      const {code,language} = req.body;
+      let {code,language} = req.body;
 
      if(!userId||!code||!problemId||!language)
        return res.status(400).send("Some field missing");
@@ -118,11 +122,14 @@ const runCode = async(req,res)=>{
       const problem =  await Problem.findById(problemId);
    //    testcases(Hidden)
 
+   // cpp error resolved
+    if(language === 'cpp') 
+      language = 'c++'
 
    //   Submit on judge0
-
+  //  console.log("in")
    const languageId = getLanguageById(language);
-
+   
    const submissions = problem.visibleTestCases.map((testcase)=>({
        source_code:code,
        language_id: languageId,
@@ -130,16 +137,17 @@ const runCode = async(req,res)=>{
        expected_output: testcase.output
    }));
 
-
+   
    const submitResult = await submitBatch(submissions);
    
    const resultToken = submitResult.map((value)=> value.token);
-
+   
    const testResult = await submitToken(resultToken);
 
    
-  
+   
    res.status(201).send(testResult);
+  //  console.log(testResult)
       
    }
    catch(err){

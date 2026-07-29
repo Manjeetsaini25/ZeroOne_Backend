@@ -8,6 +8,8 @@ const authRouter = require("./routes/userAuth");
 const problemRouter = require("./routes/problemCreator");
 const submitRouter = require("./routes/submit")
 const cors = require('cors')
+const aiRouter = require("./routes/aiChatting");
+const userMiddleware = require('./middleware/userMiddleware');
 
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -19,6 +21,7 @@ app.use(cookieParser());
 app.use('/user',authRouter);
 app.use('/problem',problemRouter);
 app.use('/submission',submitRouter);
+app.use('/ai',userMiddleware,aiRouter)
 
 const InitalizeConnection = async ()=>{
     try{

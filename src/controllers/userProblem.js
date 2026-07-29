@@ -32,6 +32,15 @@ const createProblem = async (req, res) => {
             });
         }
 
+        const existingProblem = await Problem.findOne({ title });
+
+        if (existingProblem) {
+            return res.status(409).json({
+                success: false,
+                message: "Problem with this title already exists."
+            });
+        }
+
         for (const solution of referenceSolution) {
 
             const languageId = getLanguageById(solution.language);

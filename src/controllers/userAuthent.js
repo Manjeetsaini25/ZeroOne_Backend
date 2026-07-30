@@ -19,7 +19,12 @@ const register = async (req,res)=>{
     
      const user =  await User.create(req.body);
      const token =  jwt.sign({_id:user._id , emailId:emailId, role:'user'},process.env.JWT_KEY,{expiresIn: 60*60});
-     res.cookie('token',token,{maxAge: 60*60*1000});
+     res.cookie("token", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 60 * 60 * 1000,
+    });
      const reply = {
         firstName:user.firstName,
         emailId:user.emailId,
@@ -60,7 +65,12 @@ const login = async (req,res)=>{
             throw new Error("Invalid Credentials");
 
         const token =  jwt.sign({_id:user._id , emailId:emailId, role:user.role},process.env.JWT_KEY,{expiresIn: 60*60});
-        res.cookie('token',token,{maxAge: 60*60*1000});
+        res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 60 * 60 * 1000,
+         });
         const reply = {
             firstName:user.firstName,
             emailId:user.emailId,
@@ -89,7 +99,11 @@ const logout = async(req,res)=>{
         await redisClient.set(`token:${token}`,'Blocked');
         await redisClient.expireAt(`token:${token}`,payload.exp);
 
-    res.cookie("token",null,{expires: new Date(Date.now())});
+        res.clearCookie("token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    });
     res.send("Logged Out Succesfully");
 
     }

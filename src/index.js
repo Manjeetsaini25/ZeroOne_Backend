@@ -12,7 +12,8 @@ const aiRouter = require("./routes/aiChatting");
 const userMiddleware = require('./middleware/userMiddleware');
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173',
+    'https://zeroone-frontend.onrender.com'],
     credentials: true 
 }))
 
